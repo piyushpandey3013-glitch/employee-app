@@ -15,42 +15,55 @@ class MainActivity : Activity() {
 
     private lateinit var webView: WebView
 
-    private val locationRequestCode = 1001
+    companion object {
+        private const val LOCATION_REQUEST = 1001
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         webView = WebView(this)
 
-        webView.settings.javaScriptEnabled = true
-        webView.settings.domStorageEnabled = true
-        webView.settings.setGeolocationEnabled(true)
+        webView.settings.apply {
+            javaScriptEnabled = true
+            domStorageEnabled = true
+            databaseEnabled = true
+            setGeolocationEnabled(true)
+        }
 
-        webView.webViewClient = WebViewClient()
+        webView.webViewClient = object : WebViewClient() {
+
+            override fun onRenderProcessGone(
+                view: WebView,
+                detail: android.webkit.RenderProcessGoneDetail
+            ): Boolean {
+                view.destroy()
+                return true
+            }
+        }
 
         webView.webChromeClient = object : WebChromeClient() {
 
             override fun onGeolocationPermissionsShowPrompt(
-                origin: String?,
-                callback: GeolocationPermissions.Callback?
+                origin: String,
+                callback: GeolocationPermissions.Callback
             ) {
-
-                if (ContextCompat.checkSelfPermission(
+                if (
+                    ContextCompat.checkSelfPermission(
                         this@MainActivity,
                         Manifest.permission.ACCESS_FINE_LOCATION
                     ) != PackageManager.PERMISSION_GRANTED
                 ) {
-
                     ActivityCompat.requestPermissions(
                         this@MainActivity,
                         arrayOf(
                             Manifest.permission.ACCESS_FINE_LOCATION,
                             Manifest.permission.ACCESS_COARSE_LOCATION
                         ),
-                        locationRequestCode
+                        LOCATION_REQUEST
                     )
                 } else {
-                    callback?.invoke(origin, true, false)
+                    callback.invoke(origin, true, false)
                 }
             }
         }
@@ -73,18 +86,17 @@ class MainActivity : Activity() {
             grantResults
         )
 
-        if (requestCode == locationRequestCode) {
-
-            val granted =
+        if (requestCode == LOCATION_REQUEST) {
+            if (
                 grantResults.isNotEmpty() &&
                 grantResults[0] == PackageManager.PERMISSION_GRANTED
-
-            if (granted) {
+            ) {
                 webView.reload()
             }
         }
     }
 
+    @Deprecated("Deprecated in Java")
     override fun onBackPressed() {
         if (webView.canGoBack()) {
             webView.goBack()
