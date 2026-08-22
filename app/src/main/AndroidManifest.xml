@@ -13,7 +13,7 @@
     <application
         android:allowBackup="false"
         android:label="Employee App"
-        android:theme="@style/AppTheme"
+        android:theme="android:theme="@android:style/Theme.Material.Light.NoActionBar""
         android:usesCleartextTraffic="false">
 
         <activity
