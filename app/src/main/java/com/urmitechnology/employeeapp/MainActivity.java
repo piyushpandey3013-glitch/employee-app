@@ -31,7 +31,7 @@ public class MainActivity extends Activity {
         settings.setDomStorageEnabled(true);
         settings.setDatabaseEnabled(true);
         settings.setGeolocationEnabled(true);
-
+        settings.setMediaPlaybackRequiresUserGesture(false); 
         webView.setWebViewClient(new WebViewClient());
 
         webView.setWebChromeClient(new WebChromeClient() {
