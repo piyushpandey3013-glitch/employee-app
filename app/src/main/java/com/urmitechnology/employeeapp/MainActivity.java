@@ -167,11 +167,38 @@ if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                         null,
                         "navigation"
                 );
-
             }
-
         });
     }
+
+    @JavascriptInterface
+    public void setJourney(
+            long employeeId,
+            long journeyLegId
+    ) {
+
+        getSharedPreferences(
+                "employee_tracking",
+                MODE_PRIVATE
+        )
+                .edit()
+                .putLong("employee_id", employeeId)
+                .putLong("journey_leg_id", journeyLegId)
+                .apply();
+    }
+
+    @JavascriptInterface
+    public void clearJourney() {
+
+        getSharedPreferences(
+                "employee_tracking",
+                MODE_PRIVATE
+        )
+                .edit()
+                .clear()
+                .apply();
+    }
 }
+
 
 }
