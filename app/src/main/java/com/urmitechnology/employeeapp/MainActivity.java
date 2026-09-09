@@ -73,6 +73,22 @@ public class MainActivity extends Activity {
         });
 
         setContentView(webView);
+        Intent serviceIntent =
+        new Intent(this, LocationService.class);
+
+if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+
+    ContextCompat.startForegroundService(
+            this,
+            serviceIntent
+    );
+
+} else {
+
+    startService(serviceIntent);
+
+}
+
         textToSpeech = new TextToSpeech(
         this,
         status -> {
