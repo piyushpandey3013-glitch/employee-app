@@ -81,6 +81,11 @@ public class MainActivity extends Activity {
             }
         }
 );
+        webView.addJavascriptInterface(
+        new AndroidTTS(),
+        "AndroidTTS"
+);
+
         webView.loadUrl(
                 "https://urmitechnology.in/emp_movement/employee/login"
         );
@@ -126,4 +131,31 @@ public class MainActivity extends Activity {
             super.onBackPressed();
         }
     }
+
+    private class AndroidTTS {
+
+    @JavascriptInterface
+    public void speak(String text) {
+
+        if (text == null || text.trim().isEmpty()) {
+            return;
+        }
+
+        runOnUiThread(() -> {
+
+            if (textToSpeech != null) {
+
+                textToSpeech.speak(
+                        text,
+                        TextToSpeech.QUEUE_FLUSH,
+                        null,
+                        "navigation"
+                );
+
+            }
+
+        });
+    }
+}
+
 }
