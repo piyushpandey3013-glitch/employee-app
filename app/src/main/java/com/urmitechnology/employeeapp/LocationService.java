@@ -25,11 +25,16 @@ import com.google.android.gms.location.Priority;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 public class LocationService extends Service {
 
     private static final String CHANNEL_ID =
             "employee_location_channel";
+
+    private static final int NOTIFICATION_ID = 1001;
 
     private static final String API_URL =
             "https://urmitechnology.in/emp_movement/api/tracking/sync-gps";
@@ -62,10 +67,16 @@ public class LocationService extends Service {
                         float accuracy =
                                 location.getAccuracy();
 
+                        float speed =
+                                location.hasSpeed()
+                                        ? location.getSpeed()
+                                        : 0;
+
                         sendLocationToServer(
                                 latitude,
                                 longitude,
-                                accuracy
+                                accuracy,
+                                speed
                         );
                     }
                 }
@@ -97,10 +108,13 @@ public class LocationService extends Service {
                                 android.R.drawable.ic_menu_mylocation
                         )
                         .setOngoing(true)
+                        .setPriority(
+                                NotificationCompat.PRIORITY_LOW
+                        )
                         .build();
 
         startForeground(
-                1001,
+                NOTIFICATION_ID,
                 notification
         );
 
@@ -134,6 +148,7 @@ public class LocationService extends Service {
                         10000
                 )
                         .setMinUpdateIntervalMillis(5000)
+                        .setWaitForAccurateLocation(false)
                         .build();
 
         fusedLocationClient.requestLocationUpdates(
@@ -146,7 +161,8 @@ public class LocationService extends Service {
     private void sendLocationToServer(
             double latitude,
             double longitude,
-            float accuracy
+            float accuracy,
+            float speed
     ) {
 
         long employeeId =
@@ -161,12 +177,14 @@ public class LocationService extends Service {
 
         new Thread(() -> {
 
+            HttpURLConnection connection = null;
+
             try {
 
                 URL url =
                         new URL(API_URL);
 
-                HttpURLConnection connection =
+                connection =
                         (HttpURLConnection)
                                 url.openConnection();
 
@@ -177,15 +195,25 @@ public class LocationService extends Service {
                         "application/json"
                 );
 
+                connection.setRequestProperty(
+                        "Accept",
+                        "application/json"
+                );
+
+                connection.setConnectTimeout(10000);
+                connection.setReadTimeout(10000);
                 connection.setDoOutput(true);
 
                 String timestamp =
-                        new java.text.SimpleDateFormat(
+                        new SimpleDateFormat(
                                 "yyyy-MM-dd HH:mm:ss",
-                                java.util.Locale.getDefault()
+                                Locale.getDefault()
                         ).format(
-                                new java.util.Date()
+                                new Date()
                         );
+
+                double speedKmph =
+                        speed * 3.6;
 
                 String json =
                         "{"
@@ -194,6 +222,7 @@ public class LocationService extends Service {
                         + "\"points\":[{"
                         + "\"lat\":" + latitude + ","
                         + "\"lng\":" + longitude + ","
+                        + "\"speed\":" + speedKmph + ","
                         + "\"accuracy\":" + accuracy + ","
                         + "\"timestamp\":\"" + timestamp + "\""
                         + "}]"
@@ -211,14 +240,23 @@ public class LocationService extends Service {
                 output.flush();
                 output.close();
 
-                connection.getResponseCode();
+                int responseCode =
+                        connection.getResponseCode();
 
-                connection.disconnect();
+                System.out.println(
+                        "Location sync response: "
+                                + responseCode
+                );
 
             } catch (Exception e) {
 
                 e.printStackTrace();
 
+            } finally {
+
+                if (connection != null) {
+                    connection.disconnect();
+                }
             }
 
         }).start();
@@ -236,12 +274,17 @@ public class LocationService extends Service {
                             NotificationManager.IMPORTANCE_LOW
                     );
 
+            channel.setDescription(
+                    "Keeps employee location tracking active"
+            );
+
             NotificationManager manager =
                     getSystemService(
                             NotificationManager.class
                     );
 
             if (manager != null) {
+
                 manager.createNotificationChannel(
                         channel
                 );
@@ -264,10 +307,9 @@ public class LocationService extends Service {
 
         if (fusedLocationClient != null) {
 
-            fusedLocationClient
-                    .removeLocationUpdates(
-                            locationCallback
-                    );
+            fusedLocationClient.removeLocationUpdates(
+                    locationCallback
+            );
         }
 
         super.onDestroy();
@@ -276,6 +318,7 @@ public class LocationService extends Service {
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
+
         return null;
     }
 }
