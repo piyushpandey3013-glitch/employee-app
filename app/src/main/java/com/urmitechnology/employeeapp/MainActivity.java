@@ -10,6 +10,16 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
+import android.content.Intent;
+import android.os.Build;
+import android.speech.tts.TextToSpeech;
+import android.webkit.JavascriptInterface;
+import android.webkit.CookieManager;
+
+import androidx.core.content.ContextCompat;
+
+import java.util.Locale;
+
 public class MainActivity extends Activity {
 
     private WebView webView;
