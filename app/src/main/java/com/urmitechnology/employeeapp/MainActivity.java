@@ -23,7 +23,7 @@ import java.util.Locale;
 public class MainActivity extends Activity {
 
     private WebView webView;
-
+    private TextToSpeech textToSpeech;
     private static final int LOCATION_REQUEST_CODE = 1001;
 
     private String pendingOrigin;
