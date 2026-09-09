@@ -73,7 +73,14 @@ public class MainActivity extends Activity {
         });
 
         setContentView(webView);
-
+        textToSpeech = new TextToSpeech(
+        this,
+        status -> {
+            if (status == TextToSpeech.SUCCESS) {
+                textToSpeech.setLanguage(Locale.US);
+            }
+        }
+);
         webView.loadUrl(
                 "https://urmitechnology.in/emp_movement/employee/login"
         );
