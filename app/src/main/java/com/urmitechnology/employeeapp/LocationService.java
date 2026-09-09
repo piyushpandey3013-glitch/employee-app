@@ -23,7 +23,8 @@ import com.google.android.gms.location.Priority;
 
 public class LocationService extends Service {
 
-    private static final String CHANNEL_ID = "employee_location_channel";
+    private static final String CHANNEL_ID =
+            "employee_location_channel";
 
     private FusedLocationProviderClient fusedLocationClient;
 
@@ -31,7 +32,8 @@ public class LocationService extends Service {
             new LocationCallback() {
 
                 @Override
-                public void onLocationResult(LocationResult result) {
+                public void onLocationResult(
+                        LocationResult result) {
 
                     if (result == null) {
                         return;
@@ -42,12 +44,16 @@ public class LocationService extends Service {
 
                     if (location != null) {
 
-                        double latitude = location.getLatitude();
-                        double longitude = location.getLongitude();
+                        double latitude =
+                                location.getLatitude();
 
-                        // IMPORTANT:
-                        // Yahan tumhare existing website/backend
-                        // ka location API call add hoga.
+                        double longitude =
+                                location.getLongitude();
+
+                        // Abhi yahan sirf location mil rahi hai.
+                        // Next step me tumhare existing
+                        // backend/API ko ye location bhejenge.
+
                     }
                 }
             };
@@ -59,33 +65,47 @@ public class LocationService extends Service {
         createNotificationChannel();
 
         Notification notification =
-                new NotificationCompat.Builder(this, CHANNEL_ID)
-                        .setContentTitle("Employee Location Active")
-                        .setContentText("Location tracking is running")
-                        .setSmallIcon(android.R.drawable.ic_menu_mylocation)
+                new NotificationCompat.Builder(
+                        this,
+                        CHANNEL_ID
+                )
+                        .setContentTitle(
+                                "Employee Location Active"
+                        )
+                        .setContentText(
+                                "Location tracking is running"
+                        )
+                        .setSmallIcon(
+                                android.R.drawable.ic_menu_mylocation
+                        )
                         .setOngoing(true)
                         .build();
 
-        startForeground(1001, notification);
+        startForeground(
+                1001,
+                notification
+        );
 
         fusedLocationClient =
-                LocationServices.getFusedLocationProviderClient(this);
+                LocationServices
+                        .getFusedLocationProviderClient(this);
 
         startLocationUpdates();
     }
 
     private void startLocationUpdates() {
 
-        if (ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.ACCESS_FINE_LOCATION
-        ) != PackageManager.PERMISSION_GRANTED
+        if (
+                ActivityCompat.checkSelfPermission(
+                        this,
+                        Manifest.permission.ACCESS_FINE_LOCATION
+                ) != PackageManager.PERMISSION_GRANTED
                 &&
                 ActivityCompat.checkSelfPermission(
                         this,
                         Manifest.permission.ACCESS_COARSE_LOCATION
-                ) != PackageManager.PERMISSION_GRANTED) {
-
+                ) != PackageManager.PERMISSION_GRANTED
+        ) {
             stopSelf();
             return;
         }
@@ -107,20 +127,26 @@ public class LocationService extends Service {
 
     private void createNotificationChannel() {
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        if (Build.VERSION.SDK_INT >=
+                Build.VERSION_CODES.O) {
 
             NotificationChannel channel =
                     new NotificationChannel(
                             CHANNEL_ID,
                             "Employee Location",
-                            NotificationManager.IMPORTANCE_LOW
+                            NotificationManager
+                                    .IMPORTANCE_LOW
                     );
 
             NotificationManager manager =
-                    getSystemService(NotificationManager.class);
+                    getSystemService(
+                            NotificationManager.class
+                    );
 
             if (manager != null) {
-                manager.createNotificationChannel(channel);
+                manager.createNotificationChannel(
+                        channel
+                );
             }
         }
     }
@@ -138,9 +164,11 @@ public class LocationService extends Service {
     public void onDestroy() {
 
         if (fusedLocationClient != null) {
-            fusedLocationClient.removeLocationUpdates(
-                    locationCallback
-            );
+
+            fusedLocationClient
+                    .removeLocationUpdates(
+                            locationCallback
+                    );
         }
 
         super.onDestroy();
